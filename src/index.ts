@@ -5,11 +5,7 @@ import { JWT_PASSWORD } from "./config";
 import bcrypt from "bcrypt"
 import z from "zod"
 import { random } from "./utils";
-import errorMap from "zod/lib/locales/en";
-import { errorUtil } from "zod/lib/helpers/errorUtil";
 import { userMidddleware } from "./middleware";
-// import { random } from "./utils";
-
 import cors from "cors"
 
 const app = express() ;
@@ -17,93 +13,17 @@ const app = express() ;
 app.use(express.json()) ;
 app.use(cors());
 
-// app.post("/api/v1/signup" , async(req,res) => {
-    
-//     const requiredBody = z.object({
-//         username : z.string().min(5).max(10),
-//         password : z.string() 
-//     })
 
-//     const isvalidate = requiredBody.safeParse(req.body);
-
-//     if(!isvalidate.success){
-//         res.json({
-//             msg: " incorrect credential" ,
-//             error : isvalidate.error.errors
-//         })
-//         return
-//     }
-
-
-//     const username = req.body.username ;
-//     const password = req.body.password ;
-
-//     const hashedPassword = await bcrypt.hash(password ,5)
-
-//     try { 
-//         await userModel.create({
-//             username,
-//             password : hashedPassword
-//         })
-//         res.json({
-//             msg : "signup successfully"
-//         })
-//     }catch(e){
-//         res.status(403).json({
-//             msg : "user already exist"
-//         })
-//     }
-// })
-
-// app.post("/api/v1/signin" , async (req,res) => {
-
-//     const username = req.body.username ;
-//     const password = req.body.password ;
-
-//     console.log("hi there")
-
-//     const existingUser = await userModel.findOne({
-//         username
-//     })
-//     if(!existingUser){
-//         res.json({
-//             msg:"user is exist in the data base"
-//         })
-//         return
-
-//     }
-
-    
-//     console.log(existingUser);
-
-//     const passwordMatch = await bcrypt.compare(password, existingUser.password ?? "");
-//     console.log(passwordMatch);
-//     if(passwordMatch){
-//         const token = jwt.sign({
-//             id : existingUser._id
-//         } ,JWT_PASSWORD)
-//         res.json({
-//             token
-//         })
-//     }else{
-//         res.status(403).json({
-//             msg :"incorrect credential"
-//         })
-//     }
-
-
-    
-// })
 
 app.post("/api/v1/signup" ,async (req,res) => {
     const requiredBody = z.object ({
         username : z.string(),
         password : z.string()
     })
-    console.log("hi there")
+    
 
     const validatingBody = requiredBody.safeParse(req.body) ;
-    console.log(validatingBody)
+
     if(!validatingBody.success){
         res.status(403).json({
             msg : "required body is not validated"
@@ -113,7 +33,7 @@ app.post("/api/v1/signup" ,async (req,res) => {
     const username  = req.body.username ;
     const password = req.body.password ;
     const hashedPassword = await bcrypt.hash(password ,6) ;
-    console.log(hashedPassword)
+    
     try{
             await userModel.create({
             username,
@@ -161,47 +81,7 @@ app.post("/api/v1/signin" ,async (req,res)=>{
 
 
 
-// app.post("/api/v1/content",userMidddleware ,async(req,res) => {
-    
-//     const {link ,title} = req.body
-//     await contentModel.create({
-//         title,
-//         link,
-//         //@ts-ignore
-//         userId:req.userId,
-//         tag : []
-//     })
-//     res.json({
-//         msg: "content added successfully"
-//     })
 
-// })
-
-// app.get("/api/v1/content" ,userMidddleware ,async  (req,res) => {
-
-//     //@ts-ignore
-//     const userId = req.userId;
-//     const content = await contentModel.find({
-//         userId :userId
-//     }).populate("userId","username")
-    
-//     res.json({
-//         content
-//     })
-
-// })
-
-// app.delete("/api/v1/delete" ,userMidddleware ,async (req,res)=> {
-//     const contentId = req.body.contentId;
-//     const deletingContent = await contentModel.deleteMany({
-//         contentId,
-//         //@ts-ignore
-//         userId:req.userId
-//     })
-//     res.json({
-//         deletingContent
-//     })
-// })
 
 app.post("/api/v1/content" ,userMidddleware ,async(req,res) => {
 
@@ -239,13 +119,11 @@ app.delete("/api/v1/delete" ,userMidddleware ,async (req,res) => {
     const contentId = req.body.contentId;
     const content = await contentModel.find({
         contentId ,
-
-        //@ts-ignore
         userId :req.userId
     }).populate("userId" , "username")
     const contentDelete = await contentModel.deleteMany({
         contentId ,
-        //@ts-ignore
+        
         userId:req.userId 
     }).populate("userId" ,"username")
     

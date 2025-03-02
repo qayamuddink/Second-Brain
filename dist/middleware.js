@@ -26,4 +26,3 @@ const userMidddleware = (req, res, next) => {
     }
 };
 exports.userMidddleware = userMidddleware;
-//how to override the types of the express request object 
